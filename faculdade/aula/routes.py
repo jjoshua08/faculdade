@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from database import users_collection
 from schemas import User
+from bson import ObjectId
 
 router = APIRouter()
 
@@ -28,7 +29,6 @@ def create_user(user: User):
 
 @router.get("/users/{user_id}")
 def get_user(user_id: str):
-    from bson import ObjectId
 
     user = users_collection.find_one({"_id": ObjectId(user_id)})
 
@@ -37,27 +37,24 @@ def get_user(user_id: str):
         return user
     return {"error": "user not found"}
 
+#UPDATE
+@router.put("/users/{user_id}")
+def update_user(user_id: str, user: User):
+    user_dict = user.model_dump()
+    result = users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": user_dict}
+    )
+    if result.matched_count == 0:
+        return {"error": "user not found"}
+    return {"message": "User Update"}
+
 #DELETE
 @router.delete("/users/{user_id}")
 def delete_user(user_id: str):
-    from bson import ObjectId
-    user = users_collection.find_one_and_delete({"_id": ObjectId(user_id)})
-
-    if user:
-        user["_id"] = str(user["_id"])
-        return user
-    return {"error": "user not found"}
-
-
-#UPDATE
-
-@router.put("/users/{user_id}")
-def update_user(user_id: str):
-    from bson import ObjectId
-
-    user = users_collection.find_one_and_update({"_id": ObjectId(user_id)})
-
-    if user:
-        user["_id"] = str(user["_id"])
-        return user
-    return {"error": "user not found"}
+    result = users_collection.delete_one(
+        {"_id": ObjectId(user_id)}
+    )
+    if result.deleted_count == 0:
+        return {"error": "user not found"}
+    return {"message": "user deleted"}
