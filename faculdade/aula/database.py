@@ -6,4 +6,4 @@ client = MongoClient(MONGO_URL)
 
 db = client["aula_nosql"]
 
-users_collection = db["users"]
+cars_collection = db["cars"]

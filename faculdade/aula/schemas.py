@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class User(BaseModel):
-    nome: str
-    email: str
-    idade: int
+class Car(BaseModel):
+    marca: str
+    modelo: str
+    ano: int
